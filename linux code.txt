@@ -1,0 +1,51 @@
+#!/bin/bash
+vsecho="echo -e"
+#[ ${#} -lt 2 -o "${1}" = "--help" ] && {
+[ "${1}" = "--help" ] && {
+   ${vsecho} "Script Usage.... "
+   ${vsecho} "${0} --help"
+   ${vsecho} "${0} --version" 
+   ${vsecho} "${0} cpu getinfo" 
+   ${vsecho} "${0} memory getinfo"
+   ${vsecho} "${0} user create <username>"
+   ${vsecho} "${0} user list --sudo-only"
+#   ${vsecho} "${0} file getinfo <file-name>"
+#   ${vsecho} "${0} file getinfo [options] <file-name>"
+   exit 1
+}
+
+if [[ $1 = "--version" ]];
+then
+echo "v0.1.0"
+elif [[ $1 = "cpu" && $2 = "getinfo" ]];
+then
+lscpu
+elif [[ $1 = "memory" && $2 = "getinfo" ]];
+then
+free
+elif [[ $1 = "user" && $2 = "create" ]];
+then
+useradd -d /home/$3 $3
+echo "Assigning password"
+echo ""
+echo ""
+passwd $3
+elif [[ $1 = "user" && $2 = "list" ]];
+then
+echo ""
+echo "list of users as below"
+echo ""
+egrep -v 'nologin|sync|halt|shutdown' /etc/passwd|awk -F':' '{ print $1}'
+elif [[ $1 = "user" && $2 = "list" && $3 = "--sudo-only" ]];
+then
+echo " Below users having sudo access"
+echo ""
+echo ""
+for i in `egrep -v 'nologin|sync|halt|shutdown' /etc/passwd|awk -F':' '{ print $1}'`
+do
+cat /etc/sudoers |grep -i $i
+done
+else
+${0} --help
+fi
+
